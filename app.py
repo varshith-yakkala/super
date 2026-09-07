@@ -125,8 +125,10 @@ def compare_facts(new_facts: List[Fact], existing_facts: List[Fact]) -> List[Fac
     Relationships:
     - CORROBORATES: They refer to the same entity and attribute, and the values are consistent.
     - CONTRADICTS: They refer to the same entity and attribute, but the values are mutually exclusive and no context explains it.
-    - EXPLAINED_CONTRADICTION: They appear to contradict, but the 'context' or 'evidence' shows they are different (e.g. different time periods, different units, different scopes).
-    - UNRELATED: They do not refer to the same entity and attribute. (Do not output UNRELATED relationships, only the first three types).
+    - EXPLAINED_CONTRADICTION: They appear to contradict, but the 'context' or 'evidence' shows they are different.
+    - UNRELATED: DO NOT OUTPUT THESE.
+    
+    Keep 'reasoning' VERY concise (1 sentence max). Output MAXIMUM of 6 most important relationships to conserve space.
     
     NEW FACTS:
     {[f.model_dump() for f in new_facts]}
@@ -147,7 +149,7 @@ def compare_facts(new_facts: List[Fact], existing_facts: List[Fact]) -> List[Fac
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.0,
-                    max_tokens=500
+                    max_tokens=950
                 )
                 break
             except Exception as e:

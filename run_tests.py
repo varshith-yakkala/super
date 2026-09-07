@@ -85,7 +85,7 @@ def test_run(run_number):
         
         for attempt in range(5):
             try:
-                rel_prompt = f"Compare these facts: {[f.model_dump() for f in all_facts]}"
+                rel_prompt = f"Compare these facts. Keep reasoning VERY concise (1 sentence max). Output MAXIMUM 6 most important relationships:\n{[f.model_dump() for f in all_facts]}"
                 response = client.chat.completions.create(
                     model="qwen/qwen3.8-27b",
                     response_model=RelationshipList,
@@ -94,7 +94,7 @@ def test_run(run_number):
                         {"role": "user", "content": rel_prompt}
                     ],
                     temperature=0.0,
-                    max_tokens=500
+                    max_tokens=950
                 )
                 rels = [r for r in response.relationships if r.relationship != "UNRELATED"]
                 print(f"Found {len(rels)} relationships.")
