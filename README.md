@@ -44,7 +44,7 @@ A knowledge graph system that extracts meaningful facts from PDFs, links them to
 **Architecture:**
 - **UI & Flow Control:** Built with Streamlit for a simple, responsive interface allowing iterative uploads.
 - **PDF Extraction:** `pypdf` is used to quickly scrape raw text.
-- **LLM Engine:** Groq API using `llama-3.3-70b-versatile` via the `instructor` library to guarantee structured Pydantic schema outputs.
+- **LLM Engine:** Groq API using `llama3-70b-8192` via the `instructor` library to guarantee structured Pydantic schema outputs.
 - **Knowledge Layer:** Kept in session state (easily extendable to a graph database like Neo4j) representing nodes (Facts) and edges (Relationships).
 
 **Important Decisions & Trade-offs:**

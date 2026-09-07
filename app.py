@@ -80,7 +80,7 @@ def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fac
     
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="llama3-70b-8192",
             response_model=FactList,
             messages=[
                 {"role": "system", "content": "You are a precise data extraction system."},
@@ -128,7 +128,7 @@ def compare_facts(new_facts: List[Fact], existing_facts: List[Fact]) -> List[Fac
     
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="llama3-70b-8192",
             response_model=RelationshipList,
             messages=[
                 {"role": "system", "content": "You are a precise fact reconciliation engine."},
