@@ -3,8 +3,8 @@ import streamlit as st
 import json
 import uuid
 from pypdf import PdfReader
-from google import genai
-from google.genai import types
+from groq import Groq
+import instructor
 from pydantic import BaseModel, Field
 from typing import List, Optional, Literal, Dict
 import pandas as pd
@@ -12,15 +12,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Setup GenAI client
+# Setup Groq client
 # Streamlit secrets or env var
-api_key = os.environ.get("GEMINI_API_KEY")
-if not api_key and "GEMINI_API_KEY" in st.secrets:
-    api_key = st.secrets["GEMINI_API_KEY"]
+api_key = os.environ.get("GROQ_API_KEY")
+if not api_key and "GROQ_API_KEY" in st.secrets:
+    api_key = st.secrets["GROQ_API_KEY"]
 
 client = None
 if api_key:
-    client = genai.Client(api_key=api_key)
+    # We use instructor to patch the Groq client to enable easy structured Pydantic outputs
+    client = instructor.from_groq(Groq(api_key=api_key))
 
 # ----------------- SCHEMAS -----------------
 
@@ -77,26 +78,26 @@ def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fac
     {text}
     """
     
-    response = client.models.generate_content(
-        model='gemini-2.5-flash',
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=FactList,
-            temperature=0.0
-        ),
-    )
-    
     try:
-        data = json.loads(response.text)
-        facts = data.get('facts', [])
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            response_model=FactList,
+            messages=[
+                {"role": "system", "content": "You are a precise data extraction system."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.0
+        )
+        
         result = []
-        for f in facts:
+        for f in response.facts:
             # Overwrite source and page to be safe
-            f['source_doc'] = doc_name
-            f['page_num'] = page_num
-            f['id'] = str(uuid.uuid4())[:8] # short uuid
-            result.append(Fact(**f))
+            f.source_doc = doc_name
+            f.page_num = page_num
+            # Ensure unique IDs
+            if not f.id or "doc" in f.id:
+                f.id = str(uuid.uuid4())[:8]
+            result.append(f)
         return result
     except Exception as e:
         st.error(f"Failed to parse facts: {e}")
@@ -125,20 +126,19 @@ def compare_facts(new_facts: List[Fact], existing_facts: List[Fact]) -> List[Fac
     {[f.model_dump() for f in existing_facts]}
     """
     
-    response = client.models.generate_content(
-        model='gemini-2.5-pro', # Pro model for better reasoning
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=RelationshipList,
-            temperature=0.0
-        ),
-    )
-    
     try:
-        data = json.loads(response.text)
-        rels = data.get('relationships', [])
-        return [FactRelationship(**r) for r in rels if r['relationship'] != "UNRELATED"]
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            response_model=RelationshipList,
+            messages=[
+                {"role": "system", "content": "You are a precise fact reconciliation engine."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.0
+        )
+        
+        # Filter out unrelated relations
+        return [r for r in response.relationships if r.relationship != "UNRELATED"]
     except Exception as e:
         st.error(f"Failed to parse relationships: {e}")
         return []
@@ -158,9 +158,9 @@ if "relationships" not in st.session_state:
 with st.sidebar:
     st.header("Configuration")
     if not api_key:
-        api_key_input = st.text_input("Gemini API Key", type="password")
+        api_key_input = st.text_input("Groq API Key", type="password")
         if api_key_input:
-            client = genai.Client(api_key=api_key_input)
+            client = instructor.from_groq(Groq(api_key=api_key_input))
             st.success("API Key set!")
     else:
         st.success("API Key loaded from environment/secrets.")
@@ -225,4 +225,3 @@ with tab2:
         st.dataframe(df_rels.style.map(color_relationship, subset=['relationship']), use_container_width=True)
     else:
         st.info("No relationships found yet.")
-

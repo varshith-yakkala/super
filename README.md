@@ -6,7 +6,7 @@ A knowledge graph system that extracts meaningful facts from PDFs, links them to
 
 ### Prerequisites
 - Python 3.10+
-- A Google Gemini API key
+- A Groq API key
 
 ### Setup
 1. Clone the repository and navigate into it.
@@ -24,7 +24,7 @@ A knowledge graph system that extracts meaningful facts from PDFs, links them to
    ```
 4. Create a `.env` file in the root directory and add your API key:
    ```env
-   GEMINI_API_KEY=your_api_key_here
+   GROQ_API_KEY=your_api_key_here
    ```
    *Alternatively, you can provide the API key directly in the UI sidebar.*
 
@@ -44,7 +44,7 @@ A knowledge graph system that extracts meaningful facts from PDFs, links them to
 **Architecture:**
 - **UI & Flow Control:** Built with Streamlit for a simple, responsive interface allowing iterative uploads.
 - **PDF Extraction:** `pypdf` is used to quickly scrape raw text.
-- **LLM Engine:** Google Gemini 2.5 Flash for fact extraction and Gemini 2.5 Pro for complex cross-document reconciliation, accessed via `google-genai`. Using structured Pydantic schemas guarantees the response format.
+- **LLM Engine:** Groq API using `llama-3.3-70b-versatile` via the `instructor` library to guarantee structured Pydantic schema outputs.
 - **Knowledge Layer:** Kept in session state (easily extendable to a graph database like Neo4j) representing nodes (Facts) and edges (Relationships).
 
 **Important Decisions & Trade-offs:**
