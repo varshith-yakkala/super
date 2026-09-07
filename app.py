@@ -78,16 +78,25 @@ def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fac
     {text}
     """
     
-    try:
-        response = client.chat.completions.create(
-            model="llama3-70b-8192",
-            response_model=FactList,
-            messages=[
-                {"role": "system", "content": "You are a precise data extraction system."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.0
-        )
+        import time
+        for attempt in range(3):
+            try:
+                response = client.chat.completions.create(
+                    model="qwen/qwen3.8-27b",
+                    response_model=FactList,
+                    messages=[
+                        {"role": "system", "content": "You are a precise data extraction system."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.0,
+                    max_tokens=500
+                )
+                break
+            except Exception as e:
+                if "429" in str(e) and attempt < 2:
+                    time.sleep(65)
+                else:
+                    raise e
         
         result = []
         for f in response.facts:
@@ -127,15 +136,25 @@ def compare_facts(new_facts: List[Fact], existing_facts: List[Fact]) -> List[Fac
     """
     
     try:
-        response = client.chat.completions.create(
-            model="llama3-70b-8192",
-            response_model=RelationshipList,
-            messages=[
-                {"role": "system", "content": "You are a precise fact reconciliation engine."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.0
-        )
+        import time
+        for attempt in range(3):
+            try:
+                response = client.chat.completions.create(
+                    model="qwen/qwen3.8-27b",
+                    response_model=RelationshipList,
+                    messages=[
+                        {"role": "system", "content": "You are a precise fact reconciliation engine."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.0,
+                    max_tokens=500
+                )
+                break
+            except Exception as e:
+                if "429" in str(e) and attempt < 2:
+                    time.sleep(65)
+                else:
+                    raise e
         
         # Filter out unrelated relations
         return [r for r in response.relationships if r.relationship != "UNRELATED"]
