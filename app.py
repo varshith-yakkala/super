@@ -78,25 +78,25 @@ def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fac
     {text}
     """
     
-        import time
-        for attempt in range(3):
-            try:
-                response = client.chat.completions.create(
-                    model="qwen/qwen3.8-27b",
-                    response_model=FactList,
-                    messages=[
-                        {"role": "system", "content": "You are a precise data extraction system."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.0,
-                    max_tokens=500
-                )
-                break
-            except Exception as e:
-                if "429" in str(e) and attempt < 2:
-                    time.sleep(65)
-                else:
-                    raise e
+    import time
+    for attempt in range(3):
+        try:
+            response = client.chat.completions.create(
+                model="qwen/qwen3.8-27b",
+                response_model=FactList,
+                messages=[
+                    {"role": "system", "content": "You are a precise data extraction system."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0,
+                max_tokens=500
+            )
+            break
+        except Exception as e:
+            if "429" in str(e) and attempt < 2:
+                time.sleep(65)
+            else:
+                raise e
         
         result = []
         for f in response.facts:
