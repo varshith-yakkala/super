@@ -230,7 +230,7 @@ with tab2:
         def get_fact_text(fact_id):
             for f in st.session_state.facts:
                 if f.id == fact_id:
-                    return f"{f.entity} - {f.attribute}: {f.value} ({f.context})"
+                    return f"{f.entity} - {f.attribute}: {f.value} ({f.context})\n[Evidence: \"{f.evidence}\"]"
             return "Unknown"
             
         df_rels['Fact 1'] = df_rels['fact1_id'].apply(get_fact_text)
