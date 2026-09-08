@@ -9,7 +9,7 @@ import time
 
 load_dotenv()
 api_key = os.environ.get("GROQ_API_KEY")
-client = instructor.from_groq(Groq(api_key=api_key))
+client = instructor.from_groq(Groq(api_key=api_key), mode=instructor.Mode.JSON)
 
 class Fact(BaseModel):
     id: str = Field(description="Unique ID for this fact")

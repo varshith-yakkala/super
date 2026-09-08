@@ -21,7 +21,7 @@ if not api_key and "GROQ_API_KEY" in st.secrets:
 client = None
 if api_key:
     # We use instructor to patch the Groq client to enable easy structured Pydantic outputs
-    client = instructor.from_groq(Groq(api_key=api_key))
+    client = instructor.from_groq(Groq(api_key=api_key), mode=instructor.Mode.JSON)
 
 # ----------------- SCHEMAS -----------------
 
@@ -89,11 +89,11 @@ def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fac
                     model="qwen/qwen3.8-27b",
                     response_model=FactList,
                     messages=[
-                        {"role": "system", "content": "You are a precise data extraction system."},
+                        {"role": "system", "content": "You are a precise data extraction system. You must respond with perfectly valid JSON ONLY."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.0,
-                    max_tokens=500
+                    max_tokens=800
                 )
                 break
             except Exception as e:
@@ -149,11 +149,11 @@ def compare_facts(new_facts: List[Fact], existing_facts: List[Fact]) -> List[Fac
                     model="qwen/qwen3.8-27b",
                     response_model=RelationshipList,
                     messages=[
-                        {"role": "system", "content": "You are a precise fact reconciliation engine."},
+                        {"role": "system", "content": "You are a precise fact reconciliation engine. You must respond with perfectly valid JSON ONLY."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.0,
-                    max_tokens=950
+                    max_tokens=800
                 )
                 break
             except Exception as e:
