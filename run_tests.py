@@ -56,7 +56,7 @@ def test_run(run_number):
                         model="qwen/qwen3.8-27b",
                         response_model=FactList,
                         messages=[
-                            {"role": "system", "content": "You are a precise data extraction system."},
+                            {"role": "system", "content": "You are a precise data extraction system. Extract a MAXIMUM of 4 most critical facts. Keep all fields VERY short to conserve output tokens."},
                             {"role": "user", "content": prompt}
                         ],
                         temperature=0.0,

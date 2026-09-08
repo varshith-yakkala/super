@@ -66,10 +66,14 @@ def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fac
         return []
     
     prompt = f"""
-    You are an expert fact extractor. Analyze the following text and extract all meaningful numerical or semantic facts.
+    You are an expert fact extractor. Analyze the following text and extract meaningful numerical or semantic facts.
     Focus on key business metrics, financial figures, organizational roles, important dates, and definitive statements.
     Ensure that 'evidence' is an exact substring from the text.
     If a fact has context (like a time period, geographic region, or condition), capture it in the 'context' field.
+    
+    IMPORTANT CONSTRAINTS:
+    - Extract a MAXIMUM of 4 most critical facts from this text.
+    - Keep all text fields (like 'evidence', 'context', 'value') VERY short and concise.
     
     Document Name: {doc_name}
     Page Number: {page_num}
