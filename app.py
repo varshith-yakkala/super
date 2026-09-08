@@ -191,6 +191,10 @@ with st.sidebar:
         st.success("API Key loaded from environment/secrets.")
         
     st.header("Upload Documents")
+    
+    # ADDED: Max pages slider to prevent hitting Groq's 200,000 Tokens Per Day limit on 100-page PDFs
+    max_pages = st.number_input("Max Pages to Process per PDF (to conserve daily API tokens)", min_value=1, max_value=100, value=3)
+    
     uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True)
     
     if st.button("Process Documents") and uploaded_files and client:
@@ -198,6 +202,10 @@ with st.sidebar:
             for file in uploaded_files:
                 doc_name = file.name
                 pages_text = extract_text_from_pdf(file)
+                
+                # Limit the number of pages processed
+                pages_text = pages_text[:int(max_pages)]
+                
                 for i, text in enumerate(pages_text):
                     new_facts = extract_facts_from_text(text, doc_name, i + 1)
                     if new_facts:
