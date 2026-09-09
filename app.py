@@ -195,12 +195,8 @@ with st.sidebar:
         if api_key_input:
             client = instructor.from_groq(Groq(api_key=api_key_input))
             st.success("API Key set!")
-    else:
-        st.success("API Key loaded from environment/secrets.")
         
     st.header("Upload Documents")
-    
-    st.info("💡 **Smart Density Filter Active:** To avoid LLM token limits on large PDFs, the system uses a custom heuristic engine to scan all pages locally in milliseconds. It generates a 'Fact Density Profile' and selectively routes ONLY the Top 3 most fact-dense pages to the LLM for extraction!")
     
     uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True)
     
