@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL             = "qwen/qwen3.6-27b"
+MODEL             = "groq/compound-mini"
 MAX_OUTPUT_TOKENS = 2000
 MAX_PAGE_CHARS    = 1500
 
