@@ -80,8 +80,8 @@ def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fac
     If a fact has context (like a time period, geographic region, or condition), capture it in the 'context' field.
     
     IMPORTANT CONSTRAINTS:
-    - Extract a MAXIMUM of 4 most critical facts from this text.
-    - Keep all text fields (like 'evidence', 'context', 'value') VERY short and concise.
+    - Extract ONLY a MAXIMUM of 2 most critical facts from this text. Do not extract more than 2.
+    - Keep all text fields (like 'evidence', 'context', 'value') VERY short and concise (under 10 words).
     
     Document Name: {doc_name}
     Page Number: {page_num}
@@ -140,7 +140,9 @@ def compare_facts(new_facts: List[Fact], existing_facts: List[Fact]) -> List[Fac
     - EXPLAINED_CONTRADICTION: They appear to contradict, but the 'context' or 'evidence' shows they are different.
     - UNRELATED: DO NOT OUTPUT THESE.
     
-    Keep 'reasoning' VERY concise (1 sentence max). Output MAXIMUM of 6 most important relationships to conserve space.
+    IMPORTANT:
+    - Keep 'reasoning' VERY concise (under 10 words). 
+    - Output ONLY a MAXIMUM of 3 most important relationships to conserve space. Do not output more than 3.
     
     NEW FACTS:
     {[f.model_dump() for f in new_facts]}
