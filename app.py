@@ -94,7 +94,7 @@ def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fac
         for attempt in range(3):
             try:
                 response = client.chat.completions.create(
-                    model="openai/gpt-oss-20b",
+                    model="qwen/qwen3.6-27b",
                     response_model=FactList,
                     messages=[
                         {"role": "system", "content": "You are a precise data extraction system. You must respond with perfectly valid JSON ONLY."},
@@ -154,7 +154,7 @@ def compare_facts(new_facts: List[Fact], existing_facts: List[Fact]) -> List[Fac
         for attempt in range(3):
             try:
                 response = client.chat.completions.create(
-                    model="openai/gpt-oss-20b",
+                    model="qwen/qwen3.6-27b",
                     response_model=RelationshipList,
                     messages=[
                         {"role": "system", "content": "You are a precise fact reconciliation engine. You must respond with perfectly valid JSON ONLY."},
