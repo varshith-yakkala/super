@@ -21,7 +21,7 @@ if not api_key and "GROQ_API_KEY" in st.secrets:
 client = None
 if api_key:
     # We use instructor to patch the Groq client to enable easy structured Pydantic outputs
-    client = instructor.from_groq(Groq(api_key=api_key), mode=instructor.Mode.JSON)
+    client = instructor.from_groq(Groq(api_key=api_key), mode=instructor.Mode.MD_JSON)
 
 # ----------------- SCHEMAS -----------------
 
