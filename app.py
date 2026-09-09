@@ -51,6 +51,8 @@ class RelationshipList(BaseModel):
 
 # ----------------- HELPERS -----------------
 
+import re
+
 def extract_text_from_pdf(file) -> List[str]:
     reader = PdfReader(file)
     pages = []
@@ -59,6 +61,12 @@ def extract_text_from_pdf(file) -> List[str]:
         if text:
             pages.append(text)
     return pages
+
+def calculate_fact_density(text: str) -> int:
+    numbers = len(re.findall(r'\b\d+\b', text))
+    currencies = len(re.findall(r'[\$\£\€\₹]', text))
+    keywords = len(re.findall(r'(?i)(revenue|profit|loss|margin|ebitda|growth|ceo|director|increase|decrease|market share|sales|capital|debt|equity|asset|liability|percent|%)', text))
+    return numbers + (currencies * 2) + (keywords * 3)
 
 def extract_facts_from_text(text: str, doc_name: str, page_num: int) -> List[Fact]:
     if not client:
@@ -192,8 +200,7 @@ with st.sidebar:
         
     st.header("Upload Documents")
     
-    # ADDED: Max pages slider to prevent hitting Groq's 200,000 Tokens Per Day limit on 100-page PDFs
-    max_pages = st.number_input("Max Pages to Process per PDF (to conserve daily API tokens)", min_value=1, max_value=100, value=3)
+    st.info("💡 **Smart Density Filter Active:** To avoid LLM token limits on large PDFs, the system uses a custom heuristic engine to scan all pages locally in milliseconds. It generates a 'Fact Density Profile' and selectively routes ONLY the Top 3 most fact-dense pages to the LLM for extraction!")
     
     uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True)
     
@@ -203,10 +210,22 @@ with st.sidebar:
                 doc_name = file.name
                 pages_text = extract_text_from_pdf(file)
                 
-                # Limit the number of pages processed
-                pages_text = pages_text[:int(max_pages)]
+                # --- SMART DENSITY FILTERING ---
+                st.subheader(f"Fact Density Profile: {doc_name}")
+                densities = [calculate_fact_density(text) for text in pages_text]
                 
-                for i, text in enumerate(pages_text):
+                # Plot the density profile
+                chart_data = pd.DataFrame({"Fact Density Score": densities}, index=[f"Page {i+1}" for i in range(len(pages_text))])
+                st.bar_chart(chart_data)
+                
+                # Select Top 3 most dense pages
+                top_3_indices = sorted(range(len(densities)), key=lambda i: densities[i], reverse=True)[:3]
+                
+                st.write(f"Selected Top 3 pages for LLM extraction: {', '.join([str(i+1) for i in sorted(top_3_indices)])}")
+                
+                # Limit the number of pages processed based on top 3
+                for i in sorted(top_3_indices):
+                    text = pages_text[i]
                     new_facts = extract_facts_from_text(text, doc_name, i + 1)
                     if new_facts:
                         # Compare with existing
