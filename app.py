@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MODEL             = "qwen/qwen3.6-27b"
-MAX_OUTPUT_TOKENS = 1200
-MAX_PAGE_CHARS    = 3000
+MAX_OUTPUT_TOKENS = 2000
+MAX_PAGE_CHARS    = 1500
 
 api_key = os.environ.get("GROQ_API_KEY")
 try:
